@@ -7,7 +7,7 @@ const connectDB = async () => {
   });
   try {
     // Connect to the MongoDB database using the connection string from environment variables, specifically connecting to the "admin-dashboard-NZSWE" database
-      await mongoose.connect(`${process.env.MONGODB_URI}/admin-dashboard-NZSWE`);
+    await mongoose.connect(`${process.env.MONGODB_URI}/admin-dashboard-NZSWE`);
     return mongoose;
   } catch (err) {
     console.dir(err);
