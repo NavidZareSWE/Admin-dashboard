@@ -43,6 +43,7 @@ coverage
 # Editor / IDE
 # ============================
 .vscode/*
+.vscode*
 !.vscode/extensions.json
 .idea
 *.suo
