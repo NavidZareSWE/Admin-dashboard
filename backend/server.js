@@ -10,6 +10,7 @@ import managementRouter from "./routes/managementRoute.js";
 import salesRouter from "./routes/salesRoute.js";
 import connectDB from "./config/mongodb.js";
 
+
 /**********************************
  ********** App Config ************
  ********************************** */
@@ -42,7 +43,7 @@ app.use(express.json());
 // extended:false keeps it to simple key/value parsing (no rich nested objects).
 app.use(express.urlencoded({ extended: false }));
 
-// Acess Backend from any IP
+// Access Backend from any IP
 app.use(cors());
 
 /**********************************
@@ -61,3 +62,10 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server started on PORT : ${PORT}`);
 });
+
+
+// Import Mock Data
+import userModel from "./models/userModel.js";
+import {dataUser} from './data/index.js'
+// only add data one time
+// userModel.insertMany(dataUser)
