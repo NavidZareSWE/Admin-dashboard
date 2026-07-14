@@ -10,7 +10,6 @@ import managementRouter from "./routes/managementRoute.js";
 import salesRouter from "./routes/salesRoute.js";
 import connectDB from "./config/mongodb.js";
 
-
 /**********************************
  ********** App Config ************
  ********************************** */
@@ -63,9 +62,8 @@ app.listen(PORT, () => {
   console.log(`Server started on PORT : ${PORT}`);
 });
 
-
 // Import Mock Data
 import userModel from "./models/userModel.js";
-import {dataUser} from './data/index.js'
+import { dataUser } from "./data/index.js";
 // only add data one time
 // userModel.insertMany(dataUser)

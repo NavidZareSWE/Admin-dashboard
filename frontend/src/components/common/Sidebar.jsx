@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Divider,
@@ -124,6 +123,8 @@ const Sidebar = ({
             borderWidth: isNonMobile ? 0 : "2px",
             width: drawerWidth,
             transform: isSideBarOpen ? "none" : `translateX(-${drawerWidth}px)`,
+            display: "flex",
+            flexDirection: "column",
             transition: theme.transitions.create("transform", {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.enteringScreen,
@@ -134,8 +135,14 @@ const Sidebar = ({
         <Box width="100%">
           <Box m="1.5rem 2rem 2rem 3rem">
             <FlexBetween color={theme.palette.secondary.main}>
-              <Box display="flex" alignItems="center" gap="0.5rem">
-                <Typography variant="h4" fontWeight="bold">
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
                   ECOMVISION
                 </Typography>
               </Box>
@@ -195,6 +202,55 @@ const Sidebar = ({
               );
             })}
           </List>
+        </Box>
+        <Box
+          sx={{
+            mt: "auto",
+            pb: "2rem",
+          }}
+        >
+          <Divider />
+          <FlexBetween
+            sx={{
+              textTransform: "none",
+              gap: "1rem",
+              m: "1.5rem 2rem 0 3rem",
+            }}
+          >
+            <Box
+              component="img"
+              alt="profile"
+              src={profileImage}
+              sx={{
+                height: 40,
+                width: 40,
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+            <Box sx={{ textAlign: "left" }}>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "0.9rem",
+                  color: theme.palette.secondary[100],
+                }}
+              >
+                {user.name}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "0.8rem",
+                  color: theme.palette.secondary[200],
+                }}
+              >
+                {user.occupation}
+              </Typography>
+            </Box>
+            <SettingsOutlined
+              sx={{ color: theme.palette.secondary[300], fontSize: "25px" }}
+            />
+          </FlexBetween>
         </Box>
       </Drawer>
     </Box>
