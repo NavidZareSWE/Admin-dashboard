@@ -4,7 +4,13 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, min: 2, max: 100 },
     email: { type: String, required: true, max: 500, unique: true },
-    password: { type: String, required: true, min: 12, max: 120 },
+    password: {
+      type: String,
+      required: true,
+      min: 12,
+      max: 120,
+      select: false,
+    },
     city: { type: String, required: false },
     state: { type: String, required: false },
     country: { type: String, required: false },

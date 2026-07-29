@@ -64,6 +64,11 @@ app.listen(PORT, () => {
 
 // Import Mock Data
 import userModel from "./models/userModel.js";
-import { dataUser } from "./data/index.js";
+import ProductStatModel from "./models/ProductStatModel.js";
+import ProductModel from "./models/ProductModel.js";
+import { dataUser, dataProduct, dataProductStat } from "./data/index.js";
+
 // only add data one time
+// ProductModel.insertMany(dataProduct)
+// ProductStatModel.insertMany(dataProductStat)
 // userModel.insertMany(dataUser)
