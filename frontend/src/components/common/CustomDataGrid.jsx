@@ -16,7 +16,6 @@ const CustomDataGrid = ({
 }) => {
   const c = useDataGridColors();
 
-
   return (
     <Box sx={{ m: "1.5rem 2.5rem" }}>
       <Header title={title} subtitle={subtitle} />
@@ -138,14 +137,14 @@ const CustomDataGrid = ({
           ...containerSx,
         }}
       >
-<DataGrid
-  rowHeight={rowHeight}
-  columnHeaderHeight={columnHeaderHeight}
-  slots={slots}
-  slotProps={slotProps}
-  showToolbar
-  {...dataGridProps}
-/>
+        <DataGrid
+          rowHeight={rowHeight}
+          columnHeaderHeight={columnHeaderHeight}
+          slots={slots}
+          slotProps={slotProps}
+          showToolbar
+          {...dataGridProps}
+        />
       </Box>
     </Box>
   );

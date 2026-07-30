@@ -47,7 +47,7 @@ const getTransactions = async (req, res) => {
     const _sort = () => {
       const sortParsed = JSON.parse(sort);
       const sortFormatted = {
-        [sortParsed.field]: (sortParsed.sort === "asc" ? 1 : -1),
+        [sortParsed.field]: sortParsed.sort === "asc" ? 1 : -1,
       };
       return sortFormatted;
     };
@@ -91,7 +91,8 @@ const getTransactions = async (req, res) => {
       .skip(page * pageSize)
       .limit(pageSize);
 
-    const totalTransactions = await TransactionModel.countDocuments(searchFilter);
+    const totalTransactions =
+      await TransactionModel.countDocuments(searchFilter);
 
     res.status(200).json({ success: true, transactions, totalTransactions });
   } catch (error) {
