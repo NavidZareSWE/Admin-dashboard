@@ -63,12 +63,24 @@ app.listen(PORT, () => {
 });
 
 // Import Mock Data
-import userModel from "./models/userModel.js";
-import ProductStatModel from "./models/ProductStatModel.js";
-import ProductModel from "./models/ProductModel.js";
-import { dataUser, dataProduct, dataProductStat } from "./data/index.js";
+// import userModel from "./models/userModel.js";
+// import ProductStatModel from "./models/ProductStatModel.js";
+// import ProductModel from "./models/ProductModel.js";
+// import TransactionModel from "./models/TransactionModel.js";
+// import { dataUser, dataProduct, dataProductStat } from "./data/index.js";
+// import { dataTransaction } from "./data/index.js";
 
 // only add data one time
 // ProductModel.insertMany(dataProduct)
 // ProductStatModel.insertMany(dataProductStat)
 // userModel.insertMany(dataUser)
+
+// const seededTransactions = dataTransaction.map((transaction) => ({
+//   ...transaction,
+//   products: transaction.products.map((productId) => ({
+//     productId,
+//     quantity: Math.floor(Math.random() * 5) + 1, // 1–5, arbitrary
+//   })),
+// }));
+
+// await TransactionModel.insertMany(seededTransactions);

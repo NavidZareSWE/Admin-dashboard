@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BACKEND_URL }),
   reducerPath: "adminAPI",
-  tagTypes: ["User", "Products", "Customers"],
+  tagTypes: ["User", "Products", "Customers", "Transactions"],
   endpoints: (build) => ({
     getUser: build.query({
       query: (id) => `/api/general/user/${id}`,
@@ -17,8 +17,27 @@ export const api = createApi({
       query: () => "/api/client/customers",
       providesTags: ["Customers"],
     }),
+    // The query function receives an object containing pagination, sorting,
+    // and search values. We destructure those values so we can use them
+    // when building the API request.
+    getTransactions: build.query({
+      query: ({ page, pageSize, sort, search }) => ({
+        url: "/api/client/transactions",
+        method: "GET",
+
+        // Attach the extracted values as URL query parameters.
+        // This converts them into:
+        // /api/client/transactions?page=1&pageSize=10&sort=desc&search=test
+        params: { page, pageSize, sort, search },
+      }),
+      providesTags: ["Transactions"],
+    }),
   }),
 });
 
-export const { useGetUserQuery, useGetProductsQuery, useGetCustomersQuery } =
-  api;
+export const {
+  useGetUserQuery,
+  useGetProductsQuery,
+  useGetCustomersQuery,
+  useGetTransactionsQuery,
+} = api;
