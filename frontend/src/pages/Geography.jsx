@@ -14,7 +14,7 @@ import GeographySkeleton from "../components/templates/GeographySkeleton";
    vertical space and drags the eye to the bottom of the panel. Dropping it
    lets the populated latitudes render much larger. */
 const FEATURES = NIVO_WORLD_COUNTRIES_CONFIG.features.filter(
-  (f) => f.id !== "ATA"
+  (f) => f.id !== "ATA",
 );
 
 /* Bounds of the feature set above under geoNaturalEarth1 at scale 1,
@@ -42,12 +42,7 @@ const FALLBACK_SIZE = { width: 960, height: 500 };
  * No-data is intentionally neutral and therefore is not confused with
  * the lowest-value data bin.
  */
-const RAMP_DARK = [
-  "#5E81D1", 
-  "#3B4CC0", 
-  "#F2A93B", 
-  "#10B981",
-];
+const RAMP_DARK = ["#5E81D1", "#3B4CC0", "#F2A93B", "#10B981"];
 
 const RAMP_LIGHT = [
   "#78A6D8", // low — previously lower-mid (now darker)
@@ -138,7 +133,7 @@ export const Geography = () => {
 
       panelBorder: theme.palette.secondary[300],
     }),
-    [isDark, theme]
+    [isDark, theme],
   );
 
   /*
@@ -157,7 +152,7 @@ export const Geography = () => {
      one country exceeds it. */
   const maxValue = useMemo(
     () => mapData.reduce((max, d) => Math.max(max, d.value ?? 0), 0),
-    [mapData]
+    [mapData],
   );
 
   const domain = useMemo(() => [0, Math.max(maxValue, 1)], [maxValue]);
@@ -199,20 +194,15 @@ export const Geography = () => {
 
   const binColorFor = (value) => {
     const step = domain[1] / c.ramp.length;
-    const index = Math.min(
-      Math.floor(value / step),
-      c.ramp.length - 1
-    );
+    const index = Math.min(Math.floor(value / step), c.ramp.length - 1);
 
     return c.ramp[Math.max(index, 0)];
   };
 
   const topCountries = useMemo(
     () =>
-      [...mapData]
-        .sort((a, b) => (b.value ?? 0) - (a.value ?? 0))
-        .slice(0, 5),
-    [mapData]
+      [...mapData].sort((a, b) => (b.value ?? 0) - (a.value ?? 0)).slice(0, 5),
+    [mapData],
   );
 
   /*
@@ -262,9 +252,7 @@ export const Geography = () => {
             color: c.textStrong,
           }}
         >
-          {feature.data
-            ? `${feature.formattedValue} users`
-            : "No data"}
+          {feature.data ? `${feature.formattedValue} users` : "No data"}
         </Typography>
       </Box>
     </Box>
@@ -290,14 +278,8 @@ export const Geography = () => {
   return (
     /* data-theme lets the glass kit's light-mode rules reach the shimmer
        placeholder below; the kit keys them off [data-theme="light"]. */
-    <Box
-      data-theme={isDark ? "dark" : "light"}
-      sx={{ m: "1.5rem 2.5rem" }}
-    >
-      <Header
-        title="GEOGRAPHY"
-        subtitle="Find where your users are located."
-      />
+    <Box data-theme={isDark ? "dark" : "light"} sx={{ m: "1.5rem 2.5rem" }}>
+      <Header title="GEOGRAPHY" subtitle="Find where your users are located." />
 
       {/* A choropleth is poor at ranking; small high-value countries are
           nearly invisible. This answers "who is biggest" directly. */}
@@ -322,9 +304,7 @@ export const Geography = () => {
               borderRadius: "8px",
               bgcolor: c.surface,
               border: `1px solid ${
-                i === 0
-                  ? theme.palette.secondary.main
-                  : c.panelBorder
+                i === 0 ? theme.palette.secondary.main : c.panelBorder
               }`,
             }}
           >
@@ -422,9 +402,7 @@ export const Geography = () => {
               /* Countries with data get a stronger outline than those
                  without: a small push in the visual hierarchy. */
               borderWidth={(f) => (f.data ? 0.7 : 0.5)}
-              borderColor={(f) =>
-                f.data ? c.outline : c.noDataOutline
-              }
+              borderColor={(f) => (f.data ? c.outline : c.noDataOutline)}
               enableGraticule={true}
               graticuleLineWidth={0.6}
               graticuleLineColor={c.graticule}

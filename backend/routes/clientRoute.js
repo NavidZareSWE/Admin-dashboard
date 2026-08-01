@@ -12,6 +12,6 @@ const clientRouter = express.Router();
 clientRouter.get("/products", getProducts);
 clientRouter.get("/customers", getCustomers);
 clientRouter.get("/transactions", getTransactions);
-clientRouter.get('/geography', getGeography)
+clientRouter.get("/geography", getGeography);
 
 export default clientRouter;
