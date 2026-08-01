@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tooltip, Box } from "@mui/material";
 import { useGetTransactionsQuery } from "../state/api";
 import CustomDataGrid from "../components/common/CustomDataGrid";
-import DataGridCustomToolbar from "../components/templates/DataGridCustomToolbar";
+import DataGridCustomToolbar from "../components/module/DataGridCustomToolbar";
 
 const Transactions = () => {
   const [page, setPage] = useState(0);

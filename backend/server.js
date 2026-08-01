@@ -16,7 +16,7 @@ import connectDB from "./config/mongodb.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
-connectDB();
+await connectDB();
 
 /**********************************
  ********** Middlewares ***********
@@ -67,12 +67,21 @@ app.listen(PORT, () => {
 // import ProductStatModel from "./models/ProductStatModel.js";
 // import ProductModel from "./models/ProductModel.js";
 // import TransactionModel from "./models/TransactionModel.js";
-// import { dataUser, dataProduct, dataProductStat } from "./data/index.js";
-// import { dataTransaction } from "./data/index.js";
+// import OverallStatModel from "./models/OverallStatModel.js";
+// import {
+//   dataUser,
+//   dataProduct,
+//   dataProductStat,
+//   dataTransaction,
+//   dataOverallStat
+// } from "./data/index.js";
 
 // only add data one time
+// OverallStatModel.insertMany(dataOverallStat)
+
 // ProductModel.insertMany(dataProduct)
 // ProductStatModel.insertMany(dataProductStat)
+
 // userModel.insertMany(dataUser)
 
 // const seededTransactions = dataTransaction.map((transaction) => ({
@@ -82,5 +91,4 @@ app.listen(PORT, () => {
 //     quantity: Math.floor(Math.random() * 5) + 1, // 1–5, arbitrary
 //   })),
 // }));
-
 // await TransactionModel.insertMany(seededTransactions);

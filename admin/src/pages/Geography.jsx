@@ -3,7 +3,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { ResponsiveChoropleth } from "@nivo/geo";
 import { useGetGeographyQuery } from "../state/api";
 import Header from "../components/common/Header";
-import NIVO_WORLD_COUNTRIES_CONFIG from "../assets/world_countries.json";
+import NIVO_WORLD_COUNTRIES_CONFIG from "../assets/Choropleth.json";
 import GeographySkeleton from "../components/templates/GeographySkeleton";
 
 /* ------------------------------------------------------------------ *
