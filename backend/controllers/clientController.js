@@ -1,6 +1,7 @@
 import ProductModel from "../models/ProductModel.js";
 import TransactionModel from "../models/TransactionModel.js";
 import userModel from "../models/UserModel.js";
+import getCountryISO3 from "country-iso-2-to-3";
 
 const getProducts = async (req, res) => {
   try {
@@ -101,4 +102,26 @@ const getTransactions = async (req, res) => {
   }
 };
 
-export { getProducts, getCustomers, getTransactions };
+const getGeography = async (req, res) => {
+  try {
+    const users = await userModel.find();
+    const mappedLocations = users.reduce((acc, { country }) => {
+      const countryISO3 = getCountryISO3(country);
+      if (!acc[countryISO3]) acc[countryISO3] = 0;
+
+      acc[countryISO3]++;
+      return acc;
+    }, {});
+    const formattedLocations = Object.entries(mappedLocations).map(
+      ([country, count]) => {
+        return { id: country, value: count };
+      },
+    );
+    res.status(200).json({ success: true, loc: formattedLocations });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { getProducts, getCustomers, getTransactions, getGeography };
