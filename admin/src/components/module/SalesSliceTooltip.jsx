@@ -5,7 +5,18 @@ import { Box, Typography } from "@mui/material";
 // precision aiming. Field names differ across nivo generations
 // (serieId/serieColor before ~0.88, seriesId/seriesColor after), so both
 // are read.
-const SalesSliceTooltip = ({ slice, formatValue, colors }) => {
+//
+// `formatLabel` and `caption` are optional. Their defaults reproduce the
+// previous behaviour for the Overview chart, whose x values are month names
+// and whose y values are running totals; the Daily chart overrides both
+// because its x values are ISO dates and its y values are not cumulative.
+const SalesSliceTooltip = ({
+  slice,
+  formatValue,
+  colors,
+  formatLabel = String,
+  caption = "Running total since January",
+}) => {
   const point = slice.points[0];
   if (!point) return null;
 
@@ -21,7 +32,7 @@ const SalesSliceTooltip = ({ slice, formatValue, colors }) => {
       }}
     >
       <Typography sx={{ fontSize: "0.9rem", color: colors.textMuted }}>
-        {String(point.data.x)}
+        {formatLabel(point.data.x)}
       </Typography>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -42,7 +53,7 @@ const SalesSliceTooltip = ({ slice, formatValue, colors }) => {
       </Box>
 
       <Typography sx={{ fontSize: "0.8rem", color: colors.textMuted }}>
-        Running total since January
+        {caption}
       </Typography>
     </Box>
   );

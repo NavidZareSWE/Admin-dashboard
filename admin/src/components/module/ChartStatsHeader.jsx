@@ -11,17 +11,32 @@ const Stat = ({ label, value, textMuted, textStrong }) => (
 
 // The chart answers "what shape"; this answers "how much", which is the
 // question most people actually arrive with.
-const ChartStatsHeader = ({ totals, isSales, formatFullValue, colors }) => (
+//
+// The label props are optional and default to the monthly wording, so the
+// Overview chart keeps its previous output unchanged; the Daily chart passes
+// its own because "to date" and "months covered" are wrong for a windowed
+// day-by-day view.
+const ChartStatsHeader = ({
+  totals,
+  isSales,
+  formatFullValue,
+  colors,
+  primaryLabel,
+  secondaryLabel = "Months covered",
+  secondaryValue,
+}) => (
   <Box sx={{ display: "flex", gap: "32px", mb: "8px", flexShrink: 0 }}>
     <Stat
-      label={isSales ? "Revenue to date" : "Units to date"}
+      label={
+        primaryLabel ?? (isSales ? "Revenue to date" : "Units to date")
+      }
       value={formatFullValue(isSales ? totals.sales : totals.units)}
       textMuted={colors.textMuted}
       textStrong={colors.textStrong}
     />
     <Stat
-      label="Months covered"
-      value={totals.months}
+      label={secondaryLabel}
+      value={secondaryValue ?? totals.months}
       textMuted={colors.textMuted}
       textStrong={colors.textStrong}
     />

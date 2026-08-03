@@ -11,6 +11,11 @@ import Customers from "./pages/Customers";
 import Transactions from "./pages/Transactions";
 import { Geography } from "./pages/Geography";
 import Overview from "./pages/Overview";
+import Daily from "./pages/Daily";
+import Monthly from "./pages/Monthly";
+import Breakdown from "./pages/Breakdown";
+import Performance from "./pages/Performance";
+import Admin from "./pages/Admin";
 
 export default function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -32,7 +37,11 @@ export default function App() {
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/geography" element={<Geography />} />
               <Route path="/overview" element={<Overview />} />
-
+              <Route path="/daily" element={<Daily />} />
+              <Route path="/monthly" element={<Monthly />} />
+              <Route path="/breakdown" element={<Breakdown />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/performance" element={<Performance />} />
             </Route>
           </Routes>
         </ThemeProvider>
