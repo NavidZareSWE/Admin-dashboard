@@ -3,7 +3,17 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BACKEND_URL }),
   reducerPath: "adminAPI",
-  tagTypes: ["User", "Products", "Customers", "Transactions", "Geography", 'Sales'],
+  tagTypes: [
+    "User",
+    "Products",
+    "Customers",
+    "Transactions",
+    "Geography",
+    "Sales",
+    "Admins",
+    "Performance",
+    "Dashboard",
+  ],
   endpoints: (build) => ({
     getUser: build.query({
       query: (id) => `/api/general/user/${id}`,
@@ -36,9 +46,21 @@ export const api = createApi({
       query: () => "/api/client/geography",
       providesTags: ["Geography"],
     }),
-        getSales: build.query({
+    getSales: build.query({
       query: () => "/api/sales/sales",
       providesTags: ["Sales"],
+    }),
+    getAdmins: build.query({
+      query: () => "/api/management/admin",
+      providesTags: ["Admins"],
+    }),
+    getUserPerformance: build.query({
+      query: (id) => `/api/management/performance/${id}`,
+      providesTags: ["Performance"],
+    }),
+    getDashboard: build.query({
+      query: () => `/api/general/dashboard`,
+      providesTags: ["Dashboard"],
     }),
   }),
 });
@@ -49,5 +71,8 @@ export const {
   useGetCustomersQuery,
   useGetTransactionsQuery,
   useGetGeographyQuery,
-  useGetSalesQuery
+  useGetSalesQuery,
+  useGetAdminsQuery,
+  useGetUserPerformanceQuery,
+  useGetDashboardQuery
 } = api;

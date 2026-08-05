@@ -68,12 +68,14 @@ app.listen(PORT, () => {
 // import ProductModel from "./models/ProductModel.js";
 // import TransactionModel from "./models/TransactionModel.js";
 // import OverallStatModel from "./models/OverallStatModel.js";
+// import AffiliateStatModel from "./models/AffiliateStatModel.js";
 // import {
 //   dataUser,
 //   dataProduct,
 //   dataProductStat,
 //   dataTransaction,
-//   dataOverallStat
+//   dataOverallStat,
+//   dataAffiliateStat
 // } from "./data/index.js";
 
 // only add data one time
@@ -92,3 +94,5 @@ app.listen(PORT, () => {
 //   })),
 // }));
 // await TransactionModel.insertMany(seededTransactions);
+
+// AffiliateStatModel.insertMany(dataAffiliateStat)

@@ -59,9 +59,38 @@ function reverseTokens(tokensDark) {
 }
 export const tokensLight = reverseTokens(tokensDark);
 
+// Scrollbar colours per mode. Dark mode keeps the original blue palette
+// (primary 300/500/700); light mode uses greys so the bar does not turn into a
+// dark navy stripe on a white page.
+const scrollbarTokens = (mode) =>
+  mode === "dark"
+    ? {
+        track: tokensDark.primary[300], // #7a7f9d
+        thumb: tokensDark.primary[500], // #21295c
+        thumbHover: tokensDark.primary[700], // #141937
+      }
+    : {
+        track: tokensDark.grey[100], // #e0e0e0
+        thumb: tokensDark.grey[300], // #a3a3a3
+        thumbHover: tokensDark.grey[500], // #666666
+      };
+
 // mui theme settings
 export const themeSettings = (mode) => {
+  const scrollbar = scrollbarTokens(mode);
+
   return {
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          ":root": {
+            "--sb-track": scrollbar.track,
+            "--sb-thumb": scrollbar.thumb,
+            "--sb-thumb-hover": scrollbar.thumbHover,
+          },
+        },
+      },
+    },
     palette: {
       mode: mode,
       ...(mode === "dark"

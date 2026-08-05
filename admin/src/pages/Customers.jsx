@@ -61,9 +61,9 @@ const Customers = () => {
               borderRadius: "20px",
               fontSize: "0.7rem",
               lineHeight: 1.6,
-              backgroundColor: isAdmin ? c.pillNeutralBg : c.pillBg,
-              color: isAdmin ? c.pillNeutralFg : c.pillFg,
-              border: `1px solid ${isAdmin ? c.pillNeutralBd : c.pillBd}`,
+              backgroundColor: isAdmin ? c.pillBg : c.pillNeutralBg,
+              color: isAdmin ? c.pillFg : c.pillNeutralFg,
+              border: `1px solid ${isAdmin ? c.pillBd : c.pillNeutralBd}`,
             }}
           >
             {params.value}

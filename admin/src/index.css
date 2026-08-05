@@ -184,3 +184,58 @@ sup {
 /*  textarea {
     resize: vertical;
   }*/
+
+
+/*=============================================================================*/
+/*================================ Scrollbars =================================*/
+/*=============================================================================*/
+/*
+  Geometry lives here; the colours come from --sb-* custom properties that are
+  set per palette mode by MuiCssBaseline in src/theme.js, so the scrollbar
+  follows the light/dark toggle. The fallback values are the dark-mode colours.
+*/
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--sb-track, #7a7f9d);
+}
+
+/* Handle - the transparent border + padding-box clip insets the thumb so it
+   reads as a floating pill rather than a solid bar. */
+::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb, #21295c);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-thumb-hover, #141937);
+  background-clip: padding-box;
+}
+
+/* Where the vertical and horizontal bars meet */
+::-webkit-scrollbar-corner {
+  background: var(--sb-track, #7a7f9d);
+}
+
+/*
+  Firefox has no ::-webkit-scrollbar-* pseudo-elements, so it needs the standard
+  properties. They are scoped to browsers without the pseudo-elements on
+  purpose: per MDN, a scrollbar-color/scrollbar-width value other than `auto`
+  overrides ::-webkit-scrollbar-* styling, so applying them unconditionally
+  would discard everything above in Chromium.
+  https://developer.mozilla.org/en-US/docs/Web/CSS/::-webkit-scrollbar
+*/
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb, #21295c) var(--sb-track, #7a7f9d);
+  }
+}
