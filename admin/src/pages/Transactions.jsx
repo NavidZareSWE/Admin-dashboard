@@ -73,7 +73,7 @@ const Transactions = () => {
       getRowId={(row) => row._id}
       rows={(data?.success && data?.transactions) || []}
       columns={columns}
-      rowCount={(data?.success && data?.total) || 0}
+      rowCount={(data?.success && data?.totalTransactions) || 0}
       pageSizeOptions={[20, 50, 100]}
       pagination
       paginationMode="server"
