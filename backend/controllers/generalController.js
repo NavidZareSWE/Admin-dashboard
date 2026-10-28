@@ -1,11 +1,11 @@
 import OverallStatModel from "../models/OverallStatModel.js";
 import TransactionModel from "../models/TransactionModel.js";
-import userModel from "../models/userModel.js";
+import UserModel from "../models/UserModel.js";
 
 const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await userModel.findById(id);
+    const user = await UserModel.findById(id);
     res.status(200).json({ success: true, user });
   } catch (error) {
     console.error(error);

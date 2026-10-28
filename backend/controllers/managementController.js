@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import userModel from "../models/userModel.js";
+import UserModel from "../models/UserModel.js";
 import TransactionModel from "../models/TransactionModel.js";
 
 const getAdmin = async (req, res) => {
   try {
-    const admins = await userModel.find({ role: "admin" });
+    const admins = await UserModel.find({ role: "admin" });
     res.status(200).json({ success: true, admins });
   } catch (error) {
     console.error(error);
@@ -53,7 +53,7 @@ const getUserPerformance = async (req, res) => {
       },
     };
 
-    const userWithStats = await userModel.aggregate([
+    const userWithStats = await UserModel.aggregate([
       matchUser,
       joinAffiliateStats,
       unwindAffiliateStats,

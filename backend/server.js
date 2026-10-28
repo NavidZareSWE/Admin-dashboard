@@ -63,7 +63,7 @@ app.listen(PORT, () => {
 });
 
 // Import Mock Data
-// import userModel from "./models/userModel.js";
+// import UserModel from "./models/UserModel.js";
 // import ProductStatModel from "./models/ProductStatModel.js";
 // import ProductModel from "./models/ProductModel.js";
 // import TransactionModel from "./models/TransactionModel.js";
@@ -84,7 +84,7 @@ app.listen(PORT, () => {
 // ProductModel.insertMany(dataProduct)
 // ProductStatModel.insertMany(dataProductStat)
 
-// userModel.insertMany(dataUser)
+// UserModel.insertMany(dataUser)
 
 // const seededTransactions = dataTransaction.map((transaction) => ({
 //   ...transaction,

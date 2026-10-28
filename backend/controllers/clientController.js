@@ -1,6 +1,6 @@
 import ProductModel from "../models/ProductModel.js";
 import TransactionModel from "../models/TransactionModel.js";
-import userModel from "../models/UserModel.js";
+import UserModel from "../models/UserModel.js";
 import getCountryISO3 from "country-iso-2-to-3";
 
 const getProducts = async (req, res) => {
@@ -25,7 +25,7 @@ const getProducts = async (req, res) => {
 
 const getCustomers = async (req, res) => {
   try {
-    const customers = await userModel.find({ role: "user" });
+    const customers = await UserModel.find({ role: "user" });
     res.status(200).json({ success: true, customers });
   } catch (error) {
     console.error(error);
@@ -104,7 +104,7 @@ const getTransactions = async (req, res) => {
 
 const getGeography = async (req, res) => {
   try {
-    const users = await userModel.find();
+    const users = await UserModel.find();
     const mappedLocations = users.reduce((acc, { country }) => {
       const countryISO3 = getCountryISO3(country);
       if (!acc[countryISO3]) acc[countryISO3] = 0;
