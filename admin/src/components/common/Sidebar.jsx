@@ -1,259 +1,217 @@
 import {
+  Avatar,
   Box,
   Divider,
   Drawer,
   IconButton,
   List,
-  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Typography,
   useTheme,
 } from "@mui/material";
-import {
-  SettingsOutlined,
-  ChevronLeft,
-  ChevronRightOutlined,
-  HomeOutlined,
-  ShoppingCartOutlined,
-  Groups2Outlined,
-  ReceiptLongOutlined,
-  PublicOutlined,
-  PointOfSaleOutlined,
-  TodayOutlined,
-  CalendarMonthOutlined,
-  AdminPanelSettingsOutlined,
-  TrendingUpOutlined,
-  PieChartOutlined,
-} from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import FlexBetween from "./FlexBetween";
+import { alpha } from "@mui/material/styles";
+import { ChevronLeft, InsightsRounded } from "@mui/icons-material";
+import { NavLink } from "react-router-dom";
+import { navSections } from "../../config/navigation";
 import profileImage from "../../assets/images/profile.jpeg";
 
-const navItems = [
-  {
-    text: "Dashboard",
-    icon: <HomeOutlined />,
-  },
-  {
-    text: "Client Facing",
-    icon: null,
-  },
-  {
-    text: "Products",
-    icon: <ShoppingCartOutlined />,
-  },
-  {
-    text: "Customers",
-    icon: <Groups2Outlined />,
-  },
-  {
-    text: "Transactions",
-    icon: <ReceiptLongOutlined />,
-  },
-  {
-    text: "Geography",
-    icon: <PublicOutlined />,
-  },
-  {
-    text: "Sales",
-    icon: null,
-  },
-  {
-    text: "Overview",
-    icon: <PointOfSaleOutlined />,
-  },
-  {
-    text: "Daily",
-    icon: <TodayOutlined />,
-  },
-  {
-    text: "Monthly",
-    icon: <CalendarMonthOutlined />,
-  },
-  {
-    text: "Breakdown",
-    icon: <PieChartOutlined />,
-  },
-  {
-    text: "Management",
-    icon: null,
-  },
-  {
-    text: "Admin",
-    icon: <AdminPanelSettingsOutlined />,
-  },
-  {
-    text: "Performance",
-    icon: <TrendingUpOutlined />,
-  },
-];
-
-const Sidebar = ({
-  user,
-  drawerWidth,
-  isSideBarOpen,
-  setIsSideBarOpen,
-  isNonMobile,
-}) => {
-  const { pathname } = useLocation();
-  const [active, setActive] = useState("");
-  const navigate = useNavigate();
+/**
+ * Desktop: a persistent drawer whose root width animates between 0 and
+ * `drawerWidth`, so the page reflows instead of being covered.
+ * Mobile: a temporary overlay drawer that closes after navigation.
+ */
+const Sidebar = ({ user, drawerWidth, isOpen, onClose, isDesktop }) => {
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.secondary[300];
 
-  useEffect(() => {
-    setActive(pathname.substring(1));
-  }, [pathname]);
+  const transition = theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: isOpen
+      ? theme.transitions.duration.enteringScreen
+      : theme.transitions.duration.leavingScreen,
+  });
 
   return (
-    <Box component="nav">
-      <Drawer
-        open={isSideBarOpen}
-        onClose={() => setIsSideBarOpen(false)}
-        variant="persistent"
-        anchor="left"
-        sx={{
+    <Drawer
+      component="nav"
+      aria-label="Main navigation"
+      variant={isDesktop ? "persistent" : "temporary"}
+      anchor="left"
+      open={isOpen}
+      onClose={onClose}
+      sx={{
+        width: isDesktop ? (isOpen ? drawerWidth : 0) : undefined,
+        flexShrink: 0,
+        transition,
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
-          "& .MuiDrawer-paper": {
-            color: theme.palette.secondary[200],
-            backgroundColor: theme.palette.background.alt,
-            boxSizing: "border-box",
-            borderWidth: isNonMobile ? 0 : "2px",
-            width: drawerWidth,
-            transform: isSideBarOpen ? "none" : `translateX(-${drawerWidth}px)`,
-            display: "flex",
-            flexDirection: "column",
-            transition: theme.transitions.create("transform", {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-          },
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          color: theme.palette.secondary[200],
+          backgroundColor: theme.palette.background.alt,
+          borderRight: `1px solid ${
+            isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)"
+          }`,
+        },
+      }}
+    >
+      {/* Brand */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+          px: "1.25rem",
+          py: "1.25rem",
         }}
       >
-        <Box width="100%">
-          <Box m="1.5rem 2rem 2rem 3rem">
-            <FlexBetween color={theme.palette.secondary.main}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                }}
-              >
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                  ECOMVISION
-                </Typography>
-              </Box>
-              {!isNonMobile && (
-                <IconButton onClick={() => setIsSideBarOpen(!isSideBarOpen)}>
-                  <ChevronLeft />
-                </IconButton>
-              )}
-            </FlexBetween>
-          </Box>
-          <List>
-            {navItems.map(({ text, icon }) => {
-              if (!icon) {
-                return (
-                  <Typography key={text} sx={{ m: "2.25rem 0 1rem 3rem" }}>
-                    {text}
-                  </Typography>
-                );
-              }
-              const lowerCaseText = text.toLowerCase();
-
-              return (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      navigate(`/${lowerCaseText}`);
-                      setActive(lowerCaseText);
-                    }}
-                    sx={{
-                      backgroundColor:
-                        active === lowerCaseText
-                          ? theme.palette.secondary[300]
-                          : "transparent",
-                      color:
-                        active === lowerCaseText
-                          ? theme.palette.primary[600]
-                          : theme.palette.secondary[100],
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        ml: "2rem",
-                        color:
-                          active === lowerCaseText
-                            ? theme.palette.primary[600]
-                            : theme.palette.secondary[200],
-                      }}
-                    >
-                      {icon}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                    {active === lowerCaseText && (
-                      <ChevronRightOutlined sx={{ ml: "auto" }} />
-                    )}
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-          </List>
-        </Box>
-        <Box
-          sx={{
-            mt: "auto",
-            pb: "2rem",
-          }}
-        >
-          <Divider />
-          <FlexBetween
+        <Box sx={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+          <Box
+            aria-hidden="true"
             sx={{
-              textTransform: "none",
-              gap: "1rem",
-              m: "1.5rem 2rem 0 3rem",
+              width: 34,
+              height: 34,
+              borderRadius: "10px",
+              display: "grid",
+              placeItems: "center",
+              backgroundColor: accent,
+              color: theme.palette.getContrastText(accent),
             }}
           >
-            <Box
-              component="img"
-              alt="profile"
-              src={profileImage}
-              sx={{
-                height: 40,
-                width: 40,
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
-            />
-            <Box sx={{ textAlign: "left" }}>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  fontSize: "0.9rem",
-                  color: theme.palette.secondary[100],
-                }}
-              >
-                {user.name}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: "0.8rem",
-                  color: theme.palette.secondary[200],
-                }}
-              >
-                {user.occupation}
-              </Typography>
-            </Box>
-            <SettingsOutlined
-              sx={{ color: theme.palette.secondary[300], fontSize: "25px" }}
-            />
-          </FlexBetween>
+            <InsightsRounded fontSize="small" />
+          </Box>
+          <Typography
+            variant="h4"
+            component="p"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+              color: theme.palette.secondary.main,
+            }}
+          >
+            ECOMVISION
+          </Typography>
         </Box>
-      </Drawer>
-    </Box>
+        <IconButton
+          onClick={onClose}
+          aria-label="Close navigation"
+          size="small"
+        >
+          <ChevronLeft />
+        </IconButton>
+      </Box>
+
+      {/* Navigation */}
+      <Box sx={{ flex: 1, overflowY: "auto", px: "0.75rem", pb: "1rem" }}>
+        {navSections.map(({ title, items }) => (
+          <List
+            key={title ?? "general"}
+            dense
+            disablePadding
+            subheader={
+              title ? (
+                <ListSubheader
+                  disableSticky
+                  sx={{
+                    px: "0.75rem",
+                    pt: "1.25rem",
+                    pb: "0.25rem",
+                    lineHeight: 1.5,
+                    fontSize: "0.68rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    backgroundColor: "transparent",
+                    color: theme.palette.secondary[300],
+                    opacity: 0.8,
+                  }}
+                >
+                  {title}
+                </ListSubheader>
+              ) : undefined
+            }
+          >
+            {items.map(({ text, path, icon }) => (
+              <ListItemButton
+                key={path}
+                component={NavLink}
+                to={path}
+                onClick={isDesktop ? undefined : onClose}
+                sx={{
+                  my: "2px",
+                  px: "0.75rem",
+                  py: "0.55rem",
+                  borderRadius: "10px",
+                  color: theme.palette.secondary[100],
+                  "& .MuiListItemIcon-root": {
+                    minWidth: 36,
+                    color: theme.palette.secondary[200],
+                  },
+                  "&:hover": {
+                    backgroundColor: alpha(accent, isDark ? 0.08 : 0.12),
+                  },
+                  // NavLink sets .active and aria-current="page" itself.
+                  "&.active": {
+                    backgroundColor: accent,
+                    color: theme.palette.getContrastText(accent),
+                    "& .MuiListItemIcon-root": {
+                      color: theme.palette.getContrastText(accent),
+                    },
+                    "&:hover": { backgroundColor: accent },
+                  },
+                }}
+              >
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText
+                  primary={text}
+                  slotProps={{
+                    primary: { sx: { fontSize: "0.88rem", fontWeight: 500 } },
+                  }}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        ))}
+      </Box>
+
+      {/* Signed-in user */}
+      <Divider />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          px: "1.25rem",
+          py: "1rem",
+        }}
+      >
+        <Avatar src={profileImage} alt="" sx={{ width: 38, height: 38 }} />
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            noWrap
+            sx={{
+              fontWeight: 700,
+              fontSize: "0.88rem",
+              color: theme.palette.secondary[100],
+            }}
+          >
+            {user.name ?? " "}
+          </Typography>
+          <Typography
+            noWrap
+            sx={{ fontSize: "0.78rem", color: theme.palette.secondary[200] }}
+          >
+            {user.occupation ?? " "}
+          </Typography>
+        </Box>
+      </Box>
+    </Drawer>
   );
 };
 

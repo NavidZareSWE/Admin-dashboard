@@ -3,6 +3,8 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { ResponsiveChoropleth } from "@nivo/geo";
 import { useGetGeographyQuery } from "../state/api";
 import Header from "../components/common/Header";
+import PageContainer from "../components/common/PageContainer";
+import StatusMessage from "../components/common/StatusMessage";
 import NIVO_WORLD_COUNTRIES_CONFIG from "../assets/Choropleth.json";
 import GeographySkeleton from "../components/templates/GeographySkeleton";
 
@@ -100,7 +102,7 @@ const useMeasuredBox = () => {
 
 export const Geography = () => {
   const theme = useTheme();
-  const { data, isLoading, isError } = useGetGeographyQuery();
+  const { data, isLoading, isError, refetch } = useGetGeographyQuery();
   const [wrapperRef, size] = useMeasuredBox();
 
   const isDark = theme.palette.mode === "dark";
@@ -260,26 +262,23 @@ export const Geography = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ m: "1.5rem 2.5rem" }}>
-        <Header
-          title="GEOGRAPHY"
-          subtitle="Find where your users are located."
-        />
+      <PageContainer>
+        <Header title="Geography" subtitle="Where your users are located" />
 
         <GeographySkeleton
           isDark={isDark}
           surface={c.surface}
           border={c.panelBorder}
         />
-      </Box>
+      </PageContainer>
     );
   }
 
   return (
     /* data-theme lets the glass kit's light-mode rules reach the shimmer
        placeholder below; the kit keys them off [data-theme="light"]. */
-    <Box data-theme={isDark ? "dark" : "light"} sx={{ m: "1.5rem 2.5rem" }}>
-      <Header title="GEOGRAPHY" subtitle="Find where your users are located." />
+    <PageContainer data-theme={isDark ? "dark" : "light"}>
+      <Header title="Geography" subtitle="Where your users are located" />
 
       {/* A choropleth is poor at ranking; small high-value countries are
           nearly invisible. This answers "who is biggest" directly. */}
@@ -300,8 +299,9 @@ export const Geography = () => {
               gap: "12px",
               px: "16px",
               py: "12px",
-              minWidth: "170px",
-              borderRadius: "8px",
+              minWidth: "150px",
+              flex: { xs: "1 1 150px", md: "0 0 auto" },
+              borderRadius: "12px",
               bgcolor: c.surface,
               border: `1px solid ${
                 i === 0 ? theme.palette.secondary.main : c.panelBorder
@@ -354,21 +354,19 @@ export const Geography = () => {
         <Box
           ref={wrapperRef}
           sx={{
-            height: "62vh",
-            minHeight: "380px",
+            height: { xs: "42vh", md: "62vh" },
+            minHeight: { xs: "260px", md: "380px" },
           }}
         >
           {/* Three states only: request failed, payload unusable, or draw.
               Nothing here waits on measurement. */}
           {isError && (
-            <Typography
-              sx={{
-                color: theme.palette.error?.main,
-                p: "1.25rem",
-              }}
-            >
-              Could not load geography data. Refresh to try again.
-            </Typography>
+            <StatusMessage
+              variant="error"
+              title="Could not load geography data"
+              message="The server did not respond as expected."
+              onRetry={refetch}
+            />
           )}
 
           {!isError && (
@@ -446,8 +444,9 @@ export const Geography = () => {
           <Box
             sx={{
               display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
-              gap: "12px",
+              gap: "8px 12px",
             }}
           >
             <Typography
@@ -532,7 +531,7 @@ export const Geography = () => {
           </Box>
         </Box>
       </Box>
-    </Box>
+    </PageContainer>
   );
 };
 

@@ -1,17 +1,20 @@
-import { Box } from "@mui/material";
 import Header from "../components/common/Header";
+import PageContainer from "../components/common/PageContainer";
+import Panel from "../components/common/Panel";
 import BreakdownChart from "../components/module/BreakdownChart";
 
-const Breakdown = () => {
-  return (
-    <Box sx={{ m: "1.5rem 2.5rem" }}>
-      <Header title="BREAKDOWN" subtitle="Breakdown of Sales By Category" />
-
-      <Box sx={{ mt: "40px", height: "75vh" }}>
-        <BreakdownChart />
-      </Box>
-    </Box>
-  );
-};
+const Breakdown = () => (
+  <PageContainer>
+    <Header
+      title="Breakdown"
+      subtitle="How this year's revenue splits across product categories"
+    />
+    <Panel
+      sx={{ mt: "24px", minHeight: { xs: 560, md: "calc(100vh - 230px)" } }}
+    >
+      <BreakdownChart />
+    </Panel>
+  </PageContainer>
+);
 
 export default Breakdown;

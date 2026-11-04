@@ -1,24 +1,36 @@
-import { useEffect, useMemo, useState } from "react";
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { useMemo, useState } from "react";
+import {
+  Box,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Tooltip,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import Header from "../components/common/Header";
+import PageContainer from "../components/common/PageContainer";
+import Panel from "../components/common/Panel";
 import DailyChart from "../components/module/DailyChart";
+import ViewToggle from "../components/module/ViewToggle";
 import { useGetSalesQuery } from "../state/api";
 import { getDailyBounds } from "../hooks/useDailySeries";
 
 const MONTHS = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-];
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+].map((label, index) => ({ value: index + 1, label }));
 
 /**
  * First and last day of a 1-based month, as local Date objects.
@@ -33,10 +45,13 @@ const monthRange = (year, month) => [
   new Date(year, month, 0),
 ];
 
+// Months are compared as year * 12 + (month - 1).
+const toIndex = (year, month) => year * 12 + (month - 1);
+
 const Monthly = () => {
-  const [view, setView] = useState("units");
-  const [year, setYear] = useState(null);
-  const [month, setMonth] = useState(null);
+  const [view, setView] = useState("sales");
+  // null until the user picks; the latest month with data applies until then.
+  const [picked, setPicked] = useState(null);
 
   // Same cache entry DailyChart subscribes to, so this is not a second request.
   const { data } = useGetSalesQuery();
@@ -49,99 +64,139 @@ const Monthly = () => {
     if (!minDate || !maxDate) return [];
     const first = minDate.getFullYear();
     const last = maxDate.getFullYear();
-    return Array.from({ length: last - first + 1 }, (_, index) => first + index);
+    return Array.from(
+      { length: last - first + 1 },
+      (_, index) => first + index,
+    );
   }, [minDate, maxDate]);
 
-  // Land on the most recent month that actually has data. The `?? current`
-  // guard keeps a refetch from resetting a selection the user has made.
-  useEffect(() => {
-    if (!maxDate) return;
-    setYear((current) => current ?? maxDate.getFullYear());
-    setMonth((current) => current ?? maxDate.getMonth() + 1);
-  }, [maxDate]);
+  const selection =
+    picked ??
+    (maxDate
+      ? { year: maxDate.getFullYear(), month: maxDate.getMonth() + 1 }
+      : null);
+  const year = selection?.year ?? null;
+  const month = selection?.month ?? null;
+  const ready = Boolean(year && month);
 
   const [startDate, endDate] = useMemo(
     () => (year && month ? monthRange(year, month) : [null, null]),
-    [year, month]
+    [year, month],
   );
 
+  const minIndex = minDate
+    ? toIndex(minDate.getFullYear(), minDate.getMonth() + 1)
+    : null;
+  const maxIndex = maxDate
+    ? toIndex(maxDate.getFullYear(), maxDate.getMonth() + 1)
+    : null;
+  const currentIndex = ready ? toIndex(year, month) : null;
+
+  const step = (delta) => {
+    const next = currentIndex + delta;
+    setPicked({ year: Math.floor(next / 12), month: (next % 12) + 1 });
+  };
+
   const selectedLabel = MONTHS.find(({ value }) => value === month)?.label;
-  const ready = Boolean(year && month);
 
   return (
-    <Box sx={{ m: "1.5rem 2.5rem" }}>
+    <PageContainer>
       <Header
-        title="MONTHLY SALES"
+        title="Monthly sales"
         subtitle={
           ready
             ? `Daily breakdown for ${selectedLabel} ${year}`
             : "Daily breakdown by month"
         }
+        actions={<ViewToggle value={view} onChange={setView} />}
       />
 
-      <Box sx={{ height: "75vh" }}>
+      <Panel sx={{ mt: "24px", height: "calc(100vh - 230px)", minHeight: 500 }}>
         <Box
           sx={{
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
-            gap: "1rem",
-            mt: "1rem",
+            justifyContent: { xs: "flex-start", sm: "flex-end" },
+            gap: "0.5rem",
             mb: "0.5rem",
           }}
         >
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>View</InputLabel>
+          <Tooltip title="Previous month">
+            <span>
+              <IconButton
+                aria-label="Previous month"
+                onClick={() => step(-1)}
+                disabled={!ready || currentIndex <= minIndex}
+              >
+                <ChevronLeft />
+              </IconButton>
+            </span>
+          </Tooltip>
+
+          <FormControl size="small" sx={{ minWidth: 140 }} disabled={!ready}>
+            <InputLabel id="monthly-month-label">Month</InputLabel>
             <Select
-              value={view}
-              label="View"
-              onChange={(event) => setView(event.target.value)}
+              labelId="monthly-month-label"
+              // `?? ""` keeps the field controlled before the query resolves.
+              value={month ?? ""}
+              label="Month"
+              onChange={(event) =>
+                setPicked({ year, month: event.target.value })
+              }
             >
-              <MenuItem value="sales">Sales</MenuItem>
-              <MenuItem value="units">Units</MenuItem>
+              {MONTHS.map(({ value, label }) => (
+                <MenuItem
+                  key={value}
+                  value={value}
+                  disabled={
+                    ready &&
+                    (toIndex(year, value) < minIndex ||
+                      toIndex(year, value) > maxIndex)
+                  }
+                >
+                  {label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
-          <Box sx={{ display: "flex", gap: "1rem", ml: "auto" }}>
-            <FormControl size="small" sx={{ minWidth: 140 }} disabled={!ready}>
-              <InputLabel>Month</InputLabel>
-              <Select
-                // `?? ""` keeps the field controlled during the first render,
-                // before the query resolves and the effect seeds it.
-                value={month ?? ""}
-                label="Month"
-                onChange={(event) => setMonth(event.target.value)}
-              >
-                {MONTHS.map(({ value, label }) => (
-                  <MenuItem key={value} value={value}>
-                    {label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <FormControl size="small" sx={{ minWidth: 100 }} disabled={!ready}>
+            <InputLabel id="monthly-year-label">Year</InputLabel>
+            <Select
+              labelId="monthly-year-label"
+              value={year ?? ""}
+              label="Year"
+              onChange={(event) =>
+                setPicked({ year: event.target.value, month })
+              }
+            >
+              {years.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-            <FormControl size="small" sx={{ minWidth: 110 }} disabled={!ready}>
-              <InputLabel>Year</InputLabel>
-              <Select
-                value={year ?? ""}
-                label="Year"
-                onChange={(event) => setYear(event.target.value)}
+          <Tooltip title="Next month">
+            <span>
+              <IconButton
+                aria-label="Next month"
+                onClick={() => step(1)}
+                disabled={!ready || currentIndex >= maxIndex}
               >
-                {years.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
+                <ChevronRight />
+              </IconButton>
+            </span>
+          </Tooltip>
         </Box>
 
-        <Box sx={{ height: "calc(100% - 4.5rem)" }}>
+        <Box sx={{ height: "calc(100% - 3rem)" }}>
           <DailyChart view={view} startDate={startDate} endDate={endDate} />
         </Box>
-      </Box>
-    </Box>
+      </Panel>
+    </PageContainer>
   );
 };
 

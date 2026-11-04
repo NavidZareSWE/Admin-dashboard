@@ -1,6 +1,7 @@
 import { ResponsiveLine } from "@nivo/line";
 import { linearGradientDef } from "@nivo/core";
-import { Box, Typography } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
+import StatusMessage from "../common/StatusMessage";
 import { useGetSalesQuery } from "../../state/api";
 import OverviewChartSkeleton from "../templates/Overviewchartskeleton ";
 import useChartColors from "../../hooks/useChartColors";
@@ -40,12 +41,15 @@ const DailyChart = ({ view, startDate, endDate }) => {
   const { theme, isDark, colors } = useChartColors();
   // Same cache entry the Daily page reads its bounds from, so this does not
   // issue a second request.
-  const { data, isLoading, isError } = useGetSalesQuery();
+  const { data, isLoading, isError, refetch } = useGetSalesQuery();
+  // Fewer date labels on narrow screens, where eight of them collide.
+  const isNarrow = useMediaQuery(theme.breakpoints.down("sm"));
   const { series, totals, hasData, isSales, tickValues } = useDailySeries(
     data,
     view,
     startDate,
-    endDate
+    endDate,
+    isNarrow ? 4 : 8,
   );
 
   const formatAxisValue = (v) =>
@@ -58,24 +62,18 @@ const DailyChart = ({ view, startDate, endDate }) => {
   }
 
   if (isError || !hasData) {
-    return (
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          p: "1.25rem",
-        }}
-      >
-        <Typography
-          sx={{ color: isError ? theme.palette.error?.main : colors.textMuted }}
-        >
-          {isError
-            ? "Could not load sales data. Refresh to try again."
-            : "No sales recorded for the selected range."}
-        </Typography>
-      </Box>
+    return isError ? (
+      <StatusMessage
+        variant="error"
+        title="Could not load sales data"
+        message="The server did not respond as expected."
+        onRetry={refetch}
+      />
+    ) : (
+      <StatusMessage
+        title="No sales to show"
+        message="No sales recorded for the selected range."
+      />
     );
   }
 
@@ -100,24 +98,49 @@ const DailyChart = ({ view, startDate, endDate }) => {
           data={series}
           colors={[colors.line]}
           theme={{
-            text: { fontFamily: theme.typography.fontFamily, fill: colors.textMuted },
+            text: {
+              fontFamily: theme.typography.fontFamily,
+              fill: colors.textMuted,
+            },
             axis: {
               domain: { line: { stroke: colors.axisLine, strokeWidth: 1 } },
               ticks: {
                 line: { stroke: colors.axisLine, strokeWidth: 1 },
                 text: { fill: colors.textMuted, fontSize: 12 },
               },
-              legend: { text: { fill: colors.textStrong, fontSize: 13, fontWeight: 600 } },
+              legend: {
+                text: {
+                  fill: colors.textStrong,
+                  fontSize: 13,
+                  fontWeight: 600,
+                },
+              },
             },
-            grid: { line: { stroke: colors.grid, strokeWidth: 1, strokeDasharray: "4 4" } },
+            grid: {
+              line: {
+                stroke: colors.grid,
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              },
+            },
             crosshair: {
-              line: { stroke: colors.crosshair, strokeWidth: 1, strokeDasharray: "4 4" },
+              line: {
+                stroke: colors.crosshair,
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              },
             },
             legends: { text: { fill: colors.textMuted, fontSize: 12 } },
           }}
           margin={{ top: 24, right: 32, bottom: 60, left: 78 }}
           xScale={{ type: "point" }}
-          yScale={{ type: "linear", min: 0, max: "auto", stacked: false, reverse: false }}
+          yScale={{
+            type: "linear",
+            min: 0,
+            max: "auto",
+            stacked: false,
+            reverse: false,
+          }}
           // monotoneX cannot overshoot between points, so a quiet day never
           // renders as a dip below zero the way catmullRom would draw it.
           curve="monotoneX"

@@ -1,9 +1,10 @@
 import { Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Header from "./Header";
+import PageContainer from "./PageContainer";
+import StatusMessage from "./StatusMessage";
 import DataGridCustomColumnMenu from "../module/DataGridCustomColumnMenu";
 import { useDataGridColors } from "../../hooks/useDataGridColors";
-
 
 export const DataGridSurface = ({
   height = "75vh",
@@ -146,17 +147,50 @@ export const DataGridSurface = ({
 };
 
 /**
- * Full-page grid: page margin, Header, then the surface. Public API unchanged.
+ * Full-page grid: page gutter, Header, then the surface. When `isError` is
+ * set the grid is replaced by an error panel with a retry button.
  */
-const CustomDataGrid = ({ title, subtitle, containerSx, ...surfaceProps }) => (
-  <Box sx={{ m: "1.5rem 2.5rem" }}>
-    <Header title={title} subtitle={subtitle} />
+const CustomDataGrid = ({
+  title,
+  subtitle,
+  actions,
+  containerSx,
+  isError = false,
+  onRetry,
+  height = "calc(100vh - 220px)",
+  ...surfaceProps
+}) => {
+  const c = useDataGridColors();
+  return (
+    <PageContainer>
+      <Header title={title} subtitle={subtitle} actions={actions} />
 
-    <DataGridSurface
-      containerSx={{ mt: "32px", ...containerSx }}
-      {...surfaceProps}
-    />
-  </Box>
-);
+      {isError ? (
+        <Box
+          sx={{
+            mt: "24px",
+            borderRadius: "16px",
+            backgroundColor: c.surface,
+            border: `1px solid ${c.line}`,
+          }}
+        >
+          <StatusMessage
+            variant="error"
+            title="Could not load this table"
+            message="The server did not respond as expected."
+            onRetry={onRetry}
+            minHeight={360}
+          />
+        </Box>
+      ) : (
+        <DataGridSurface
+          height={height}
+          containerSx={{ mt: "24px", minHeight: 420, ...containerSx }}
+          {...surfaceProps}
+        />
+      )}
+    </PageContainer>
+  );
+};
 
 export default CustomDataGrid;

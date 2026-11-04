@@ -1,28 +1,25 @@
-import  { useState } from "react";
-import { FormControl, MenuItem, InputLabel, Box, Select } from "@mui/material";
+import { useState } from "react";
 import Header from "../components/common/Header";
+import PageContainer from "../components/common/PageContainer";
+import Panel from "../components/common/Panel";
 import OverviewChart from "../components/module/OverviewChart";
+import ViewToggle from "../components/module/ViewToggle";
 
 const Overview = () => {
-  const [view, setView] = useState("units");
+  const [view, setView] = useState("sales");
 
-return (
-  <Box sx={{ m: '1.5rem 2.5rem' }}>
-    <Header title="OVERVIEW" subtitle="Overview of general revenue and profit" />
-
-    <Box sx={{ height: '75vh' }}>
-      <FormControl sx={{ mt: '1rem' }}>
-        <InputLabel>View</InputLabel>
-        <Select value={view} label="View" onChange={(e) => setView(e.target.value)}>
-          <MenuItem value="sales">Sales</MenuItem>
-          <MenuItem value="units">Units</MenuItem>
-        </Select>
-      </FormControl>
-      <OverviewChart view={view} />
-    </Box>
-  </Box>
-);
-
+  return (
+    <PageContainer>
+      <Header
+        title="Overview"
+        subtitle="Cumulative revenue and units across the year"
+        actions={<ViewToggle value={view} onChange={setView} />}
+      />
+      <Panel sx={{ mt: "24px", height: "calc(100vh - 230px)", minHeight: 460 }}>
+        <OverviewChart view={view} />
+      </Panel>
+    </PageContainer>
+  );
 };
 
 export default Overview;

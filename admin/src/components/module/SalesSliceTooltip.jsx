@@ -46,7 +46,12 @@ const SalesSliceTooltip = ({
           }}
         />
         <Typography
-          sx={{ fontSize: "1.25rem", fontWeight: 700, lineHeight: 1.25, color: colors.textStrong }}
+          sx={{
+            fontSize: "1.25rem",
+            fontWeight: 700,
+            lineHeight: 1.25,
+            color: colors.textStrong,
+          }}
         >
           {formatValue(point.data.y)}
         </Typography>

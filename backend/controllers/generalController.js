@@ -13,7 +13,7 @@ const getUser = async (req, res) => {
   }
 };
 
- const getDashboardStats = async (req, res) => {
+const getDashboardStats = async (req, res) => {
   try {
     // hardcoded values
     const currentMonth = "November";

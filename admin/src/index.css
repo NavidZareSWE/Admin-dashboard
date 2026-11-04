@@ -55,9 +55,25 @@ a {
   margin: 0; /* Reset margin */
   padding: 0; /* Reset padding */
   font: inherit; /* Inherit font properties from parent */
-  cursor: inherit; /* Inherit cursor style */
-  outline: none; /* Remove outline */
   cursor: pointer;
+}
+
+/* Keyboard focus stays visible everywhere; mouse clicks do not draw a ring.
+   --focus-ring is set per palette mode in src/theme.js. */
+:focus-visible {
+  outline: 2px solid var(--focus-ring, #ffda85);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 button,
@@ -184,7 +200,6 @@ sup {
 /*  textarea {
     resize: vertical;
   }*/
-
 
 /*=============================================================================*/
 /*================================ Scrollbars =================================*/

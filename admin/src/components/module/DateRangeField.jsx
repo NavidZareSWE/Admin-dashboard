@@ -31,12 +31,14 @@ const MONTHS_SHOWN = 2;
 // `calendarStartDay={0}` below makes the grid use.
 const WEEKDAY_INITIALS = Array.from({ length: 7 }, (_, index) =>
   new Intl.DateTimeFormat("en-US", { weekday: "narrow" }).format(
-    new Date(2021, 7, 1 + index)
-  )
+    new Date(2021, 7, 1 + index),
+  ),
 );
 
 const monthLabel = (date) =>
-  new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(date);
+  new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(
+    date,
+  );
 
 /**
  * The field react-datepicker clones its input props onto. It is deliberately
@@ -58,7 +60,7 @@ const MuiRangeInput = forwardRef(function MuiRangeInput(
     label,
     fullWidth,
   },
-  ref
+  ref,
 ) {
   // While only the start date is picked, react-datepicker emits
   // "01/02/2021 – ". Backfilling the empty half with the mask reproduces
@@ -372,7 +374,9 @@ const DateRangeField = ({
         popperPlacement="bottom-end"
         popperClassName="mui-drp-popper"
         calendarClassName="mui-drp-calendar"
-        renderCustomHeader={(headerProps) => <CalendarHeader {...headerProps} />}
+        renderCustomHeader={(headerProps) => (
+          <CalendarHeader {...headerProps} />
+        )}
         customInput={<MuiRangeInput label={label} />}
       />
     </Box>

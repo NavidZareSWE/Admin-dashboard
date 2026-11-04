@@ -55,7 +55,19 @@ transaction grid, and a sales-by-category breakdown.
 
 **Cross-cutting**
 
-- Light and dark palettes derived from a single token set, toggled at runtime.
+- Light and dark palettes derived from a single token set, toggled at runtime,
+  following the operating-system preference by default and remembered between visits.
+- Page search in the top bar (Ctrl/⌘ + K or `/`) that jumps to any page.
+- Responsive layout: a collapsible sidebar on desktop and an overlay drawer on phones.
+- Error states with a retry action, and empty states, on every data view.
+- Dashboard report export as CSV, and a "Top products" ranking.
+- Customer profile drawer (contact details, order count, total spent, recent
+  orders), opened from the Customers, Admin, Transactions and Dashboard tables.
+- Product analytics dialog with a month-by-month revenue or units chart.
+- Keyboard shortcuts: `g` then a letter to jump to a page, `[` to toggle the
+  sidebar, `?` to list them all.
+- Theme choice of Light, Dark or Auto (follows the operating system live).
+- Glassmorphic menus, dialogs and drawers built on the bundled glass UI kit.
 - Collapsible sidebar navigation grouped by section.
 - Shared data-grid component providing consistent theming, a custom column menu,
   and a search toolbar.
@@ -226,6 +238,7 @@ npm run preview   # serves the build locally
 | `npm run build`   | Produce a production build in `dist/`. |
 | `npm run preview` | Serve the production build locally.    |
 | `npm run lint`    | Run ESLint across the package.         |
+| `npm test`        | Run the unit tests once with Vitest.   |
 
 ### `backend/`
 

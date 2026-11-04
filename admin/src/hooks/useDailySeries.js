@@ -46,9 +46,15 @@ export const getDailyBounds = (data) => {
   };
 };
 
-const MAX_TICKS = 8;
+const DEFAULT_MAX_TICKS = 8;
 
-const useDailySeries = (data, view, startDate, endDate) => {
+const useDailySeries = (
+  data,
+  view,
+  startDate,
+  endDate,
+  maxTicks = DEFAULT_MAX_TICKS,
+) => {
   const isSales = view === "sales";
 
   const rows = useMemo(() => toRows(data), [data]);
@@ -67,7 +73,7 @@ const useDailySeries = (data, view, startDate, endDate) => {
 
     const inRange = rows.filter(
       ({ parsedDate }) =>
-        (!from || parsedDate >= from) && (!to || parsedDate <= to)
+        (!from || parsedDate >= from) && (!to || parsedDate <= to),
     );
     if (!inRange.length) return empty;
 
@@ -87,7 +93,7 @@ const useDailySeries = (data, view, startDate, endDate) => {
 
     // A point scale draws one tick per datum, which is unreadable past a few
     // weeks, so hand nivo an explicit evenly spaced subset instead.
-    const step = Math.max(1, Math.ceil(inRange.length / MAX_TICKS));
+    const step = Math.max(1, Math.ceil(inRange.length / maxTicks));
     const ticks = inRange
       .filter((_, index) => index % step === 0)
       .map(({ date }) => date);
@@ -104,7 +110,7 @@ const useDailySeries = (data, view, startDate, endDate) => {
       },
       tickValues: ticks,
     };
-  }, [rows, startDate, endDate]);
+  }, [rows, startDate, endDate, maxTicks]);
 
   const series = isSales ? salesSeries : unitsSeries;
   const hasData = series.length > 0 && series[0].data.length > 0;

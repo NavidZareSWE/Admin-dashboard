@@ -22,25 +22,31 @@ export const useDataGridColors = () => {
         pillBg: "rgba(255, 209, 102, 0.12)",
         pillFg: "#ffd166",
         pillBd: "rgba(255, 209, 102, 0.25)",
+        pillNeutralBg: "rgba(255, 255, 255, 0.06)",
+        pillNeutralFg: "#c2c2c2",
+        pillNeutralBd: "rgba(255, 255, 255, 0.12)",
         thumb: "rgba(255, 255, 255, 0.14)",
       }
     : {
-        // Light Mode: Solid grey header band
-        surface: "#e8e8e8",
-        band: "#d4d4d4", // Solid opaque grey - blocks scrolling cells
-        rowBg: "#f4f4f4",
-        line: "#a3a3a3",
-        rowLine: "#dbdbdb",
-        hover: "#e2e2e2",
+        // Light Mode: white rows on a near-white, opaque header band
+        surface: "#ffffff",
+        band: "#f6f6f6", // opaque, so scrolling cells never show through
+        rowBg: "#ffffff",
+        line: "#e0e0e0",
+        rowLine: "#eeeeee",
+        hover: "#fbf6ea",
         textStrong: "#141414",
         text: "#3d3d3d",
         textDim: "#666666",
         accent: "#665429",
         accentDim: "#a3a3a3",
-        shadow: "0px 10px 25px -4px rgba(0, 0, 0, 0.14)",
+        shadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
         pillBg: "#ffedc2",
         pillFg: "#665429",
         pillBd: "#ffe3a3",
+        pillNeutralBg: "#ffffff",
+        pillNeutralFg: "#3d3d3d",
+        pillNeutralBd: "#c2c2c2",
         thumb: "rgba(0, 0, 0, 0.3)",
       };
 };

@@ -1,182 +1,357 @@
-import FlexBetween from '../components/common/FlexBetween';
-import Header from '../components/common/Header';
+import { useMemo, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
+  ArrowForwardRounded,
+  CalendarMonthOutlined,
   DownloadOutlined,
-  Email,
-  PointOfSale,
-  PersonAdd,
-  Traffic,
-} from '@mui/icons-material';
-import { Box, Button, Typography, useTheme, useMediaQuery } from '@mui/material';
-import { DataGridSurface } from '../components/common/CustomDataGrid';
-import BreakdownChart from '../components/module/BreakdownChart';
-import OverviewChart from '../components/module/OverviewChart';
-import { useGetDashboardQuery } from '../state/api';
-import StatBox from '../components/module/StatBox';
+  Groups2Outlined,
+  PointOfSaleOutlined,
+  TrendingUpOutlined,
+} from "@mui/icons-material";
+import { Box, Button } from "@mui/material";
+import Header from "../components/common/Header";
+import PageContainer from "../components/common/PageContainer";
+import Panel from "../components/common/Panel";
+import StatusMessage from "../components/common/StatusMessage";
+import { DataGridSurface } from "../components/common/CustomDataGrid";
+import BreakdownChart from "../components/module/BreakdownChart";
+import OverviewChart from "../components/module/OverviewChart";
+import StatBox from "../components/module/StatBox";
+import { useGetDashboardQuery } from "../state/api";
+import { useDataGridColors } from "../hooks/useDataGridColors";
+import { MONO } from "../components/grid/cells";
+import CustomerDrawer from "../components/feature/CustomerDrawer";
+import UserLinkCell from "../components/feature/UserLinkCell";
+import TopProducts from "../components/feature/TopProducts";
+import ProductDialog from "../components/feature/ProductDialog";
+import {
+  formatDateTime,
+  formatMoney,
+  fullMoney,
+  fullNumber,
+  percentChange,
+} from "../utils/formatters";
+import { buildCsv, downloadCsv } from "../utils/csv";
+
+const span = (lg, md = 12) => ({
+  gridColumn: { xs: "span 12", md: `span ${md}`, lg: `span ${lg}` },
+});
 
 const Dashboard = () => {
-  const theme = useTheme();
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
-  const { data, isLoading } = useGetDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetDashboardQuery();
+  const c = useDataGridColors();
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [openProduct, setOpenProduct] = useState(null);
+  const stats = data?.success ? data.salesStats : null;
+  const failed = isError || data?.success === false;
 
-  const columns = [
-    { field: '_id', headerName: 'ID', flex: 1 },
-    { field: 'userId', headerName: 'User ID', flex: 1 },
-    { field: 'createdAt', headerName: 'CreatedAt', flex: 1 },
-    {
-      field: 'products',
-      headerName: '# of Products',
-      flex: 0.5,
-      sortable: false,
-      renderCell: (params) => params.value?.length ?? 0,
-    },
-    {
-      field: 'cost',
-      headerName: 'Cost',
-      flex: 1,
-      renderCell: (params) =>
-        Number.isFinite(Number(params.value))
-          ? `$${Number(params.value).toFixed(2)}`
-          : '-',
-    },
-  ];
+  // Month-over-month change computed from the data itself, rather than a
+  // hard-coded "+5%" that never changes.
+  const monthDelta = useMemo(() => {
+    const months = stats?.monthlyData ?? [];
+    const index = months.findIndex(
+      (m) => m.month === stats?.thisMonthStats?.month,
+    );
+    if (index < 1) return { delta: null, previous: null };
+    return {
+      delta: percentChange(
+        stats.thisMonthStats.totalSales,
+        months[index - 1].totalSales,
+      ),
+      previous: months[index - 1].month,
+    };
+  }, [stats]);
+
+  const columns = useMemo(
+    () => [
+      {
+        field: "createdAt",
+        headerName: "Date",
+        flex: 1,
+        minWidth: 170,
+        valueFormatter: (value) => formatDateTime(value),
+      },
+      {
+        field: "userId",
+        headerName: "Customer",
+        flex: 0.8,
+        minWidth: 120,
+        renderCell: ({ value }) => (
+          <UserLinkCell value={value} short onOpen={setSelectedUserId} />
+        ),
+      },
+      {
+        field: "products",
+        headerName: "Products",
+        flex: 0.5,
+        minWidth: 90,
+        sortable: false,
+        valueGetter: (value) => value?.length ?? 0,
+      },
+      {
+        field: "cost",
+        headerName: "Amount",
+        flex: 0.7,
+        minWidth: 110,
+        type: "number",
+        renderCell: ({ value }) => (
+          <Box
+            component="span"
+            sx={{ fontFamily: MONO, fontWeight: 500, color: c.textStrong }}
+          >
+            {formatMoney(value)}
+          </Box>
+        ),
+      },
+    ],
+    [c],
+  );
+
+  const downloadReport = () => {
+    if (!stats) return;
+    const csv = buildCsv([
+      {
+        title: "Summary",
+        header: ["Metric", "Value"],
+        rows: [
+          ["Total customers", stats.totalCustomers],
+          ["Sales today", stats.todayStats?.totalSales],
+          ["Units sold today", stats.todayStats?.totalUnits],
+          [
+            `Sales in ${stats.thisMonthStats?.month ?? "this month"}`,
+            stats.thisMonthStats?.totalSales,
+          ],
+          ["Yearly sales", stats.yearlySalesTotal],
+          ["Yearly units sold", stats.yearlyTotalSoldUnits],
+        ],
+      },
+      {
+        title: "Monthly sales",
+        header: ["Month", "Sales", "Units"],
+        rows: (stats.monthlyData ?? []).map((m) => [
+          m.month,
+          m.totalSales,
+          m.totalUnits,
+        ]),
+      },
+      {
+        title: "Sales by category",
+        header: ["Category", "Sales"],
+        rows: Object.entries(stats.salesByCategory ?? {}),
+      },
+      {
+        title: "Recent transactions",
+        header: ["Transaction ID", "User ID", "Created at", "Products", "Cost"],
+        rows: (stats.transactions ?? []).map((t) => [
+          t._id,
+          t.userId,
+          t.createdAt,
+          t.products?.length ?? 0,
+          t.cost,
+        ]),
+      },
+    ]);
+    downloadCsv(
+      `ecomvision-report-${new Date().toISOString().slice(0, 10)}.csv`,
+      csv,
+    );
+  };
 
   return (
-    <Box sx={{ m: '1.5rem 2.5rem' }}>
-      <FlexBetween>
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
-        <Box>
+    <PageContainer>
+      <Header
+        title="Dashboard"
+        subtitle="Your store at a glance"
+        actions={
           <Button
-            sx={{
-              backgroundColor: theme.palette.secondary.light,
-              color: theme.palette.background.alt,
-              fontSize: '14px',
-              fontWeight: 'bold',
-              padding: '10px 20px',
-            }}
+            variant="contained"
+            color="secondary"
+            startIcon={<DownloadOutlined />}
+            onClick={downloadReport}
+            disabled={!stats}
+            sx={{ px: "18px", py: "9px", boxShadow: "none" }}
           >
-            <DownloadOutlined sx={{ mr: '10px' }} />
-            Download Reports
+            Download report
           </Button>
-        </Box>
-      </FlexBetween>
+        }
+      />
 
-      <Box
-        sx={{
-          mt: '20px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(12, minmax(0, 1fr))',
-          gridAutoRows: '160px',
-          gap: '20px',
-          '& > div': {
-            minWidth: 0,
-            minHeight: 0,
-            gridColumn: isNonMediumScreens ? undefined : 'span 12',
-          },
-        }}
-      >
-        {/* ROW 1 */}
-        <StatBox
-          title="Total Customers"
-          value={data?.success && data?.salesStats?.totalCustomers}
-          increase="+14%"
-          description="Since last month"
-          icon={<Email sx={{ color: theme.palette.secondary[300], fontSize: '26px' }} />}
-        />
-
-        <StatBox
-          title="Sales Today"
-          value={data?.success && data?.salesStats?.todayStats.totalSales}
-          increase="+21%"
-          description="Since last month"
-          icon={
-            <PointOfSale sx={{ color: theme.palette.secondary[300], fontSize: '26px' }} />
-          }
-        />
-
-        <Box
-          sx={{
-            gridColumn: 'span 8',
-            gridRow: 'span 2',
-            backgroundColor: theme.palette.background.alt,
-            p: '1rem',
-            borderRadius: '0.55rem',
-          }}
-        >
-          <OverviewChart view="sales" isDashboard={true} />
-        </Box>
-
-        <StatBox
-          title="Monthly Sales"
-          value={data?.success && data?.salesStats?.thisMonthStats.totalSales}
-          increase="+5%"
-          description="Since last month"
-          icon={<PersonAdd sx={{ color: theme.palette.secondary[300], fontSize: '26px' }} />}
-        />
-
-        <StatBox
-          title="Yearly Sales"
-          value={data?.success && data?.salesStats?.yearlySalesTotal}
-          increase="+43%"
-          description="Since last month"
-          icon={<Traffic sx={{ color: theme.palette.secondary[300], fontSize: '26px' }} />}
-        />
-
-        {/* ROW 2 */}
-        <Box
-          sx={{
-            gridColumn: 'span 8',
-            gridRow: 'span 3',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <DataGridSurface
-            height="100%"
-            containerSx={{ flex: 1, minHeight: 0, borderRadius: '0.55rem' }}
-            showToolbar={false}
-            rowHeight={44}
-            loading={isLoading}
-            getRowId={(row) => row._id}
-            rows={(data?.success && data?.salesStats?.transactions) || []}
-            columns={columns}
-            disableRowSelectionOnClick
-            initialState={{
-              pagination: { paginationModel: { pageSize: 100, page: 0 } },
-            }}
-            pageSizeOptions={[25, 50, 100]}
+      {failed ? (
+        <Panel sx={{ mt: "24px" }}>
+          <StatusMessage
+            variant="error"
+            title="Could not load the dashboard"
+            message="The server did not respond as expected."
+            onRetry={refetch}
+            minHeight={360}
           />
-        </Box>
-
+        </Panel>
+      ) : (
         <Box
           sx={{
-            gridColumn: 'span 4',
-            gridRow: 'span 3',
-            backgroundColor: theme.palette.background.alt,
-            p: '1.5rem',
-            borderRadius: '0.55rem',
+            mt: "24px",
+            display: "grid",
+            gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
+            gap: { xs: "12px", md: "20px" },
           }}
         >
-          <Typography variant="h6" sx={{ color: theme.palette.secondary[100] }}>
-            Sales By Category
-          </Typography>
+          {/* KPIs */}
+          <StatBox
+            sx={span(3, 6)}
+            loading={isLoading}
+            title="Total customers"
+            value={stats && fullNumber.format(stats.totalCustomers ?? 0)}
+            caption="Registered customers"
+            icon={<Groups2Outlined />}
+          />
+          <StatBox
+            sx={span(3, 6)}
+            loading={isLoading}
+            title="Sales today"
+            value={
+              stats && formatMoney(stats.todayStats?.totalSales, fullMoney)
+            }
+            caption={
+              stats?.todayStats
+                ? `${fullNumber.format(stats.todayStats.totalUnits ?? 0)} units sold`
+                : "No sales recorded today"
+            }
+            icon={<PointOfSaleOutlined />}
+          />
+          <StatBox
+            sx={span(3, 6)}
+            loading={isLoading}
+            title="Monthly sales"
+            value={
+              stats && formatMoney(stats.thisMonthStats?.totalSales, fullMoney)
+            }
+            delta={monthDelta.delta}
+            caption={
+              monthDelta.previous
+                ? `vs. ${monthDelta.previous}`
+                : stats?.thisMonthStats?.month
+            }
+            icon={<CalendarMonthOutlined />}
+          />
+          <StatBox
+            sx={span(3, 6)}
+            loading={isLoading}
+            title="Yearly sales"
+            value={stats && formatMoney(stats.yearlySalesTotal, fullMoney)}
+            caption={
+              stats
+                ? `${fullNumber.format(stats.yearlyTotalSoldUnits ?? 0)} units this year`
+                : ""
+            }
+            icon={<TrendingUpOutlined />}
+          />
 
-          <BreakdownChart isDashboard={true} />
-
-          <Typography
-            sx={{
-              p: '0 0.6rem',
-              fontSize: '0.8rem',
-              color: theme.palette.secondary[200],
-            }}
+          {/* Charts */}
+          <Panel
+            title="Revenue this year"
+            subtitle="Cumulative, by month"
+            actions={
+              <Button
+                component={RouterLink}
+                to="/overview"
+                size="small"
+                color="secondary"
+                endIcon={<ArrowForwardRounded />}
+              >
+                Details
+              </Button>
+            }
+            sx={{ ...span(8), height: 380 }}
           >
-            Breakdown of real states and information via category for revenue made for this year
-            and total sales.
-          </Typography>
+            <OverviewChart view="sales" isDashboard />
+          </Panel>
+
+          <Panel
+            title="Sales by category"
+            actions={
+              <Button
+                component={RouterLink}
+                to="/breakdown"
+                size="small"
+                color="secondary"
+                endIcon={<ArrowForwardRounded />}
+              >
+                Details
+              </Button>
+            }
+            sx={{ ...span(4), height: { xs: 420, lg: 380 } }}
+          >
+            <BreakdownChart isDashboard />
+          </Panel>
+
+          {/* Recent transactions */}
+          <Panel
+            title="Recent transactions"
+            subtitle="The latest 50 orders"
+            actions={
+              <Button
+                component={RouterLink}
+                to="/transactions"
+                size="small"
+                color="secondary"
+                endIcon={<ArrowForwardRounded />}
+              >
+                View all
+              </Button>
+            }
+            sx={{ ...span(8), height: 520 }}
+          >
+            <DataGridSurface
+              height="100%"
+              containerSx={{ boxShadow: "none", borderRadius: "12px" }}
+              showToolbar={false}
+              rowHeight={44}
+              loading={isLoading}
+              getRowId={(row) => row._id}
+              rows={stats?.transactions ?? []}
+              columns={columns}
+              disableRowSelectionOnClick
+              localeText={{ noRowsLabel: "No transactions yet" }}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10, page: 0 } },
+              }}
+              pageSizeOptions={[10, 25, 50]}
+            />
+          </Panel>
+
+          {/* Best sellers */}
+          <Panel
+            title="Top products"
+            subtitle="By revenue this year"
+            actions={
+              <Button
+                component={RouterLink}
+                to="/products"
+                size="small"
+                color="secondary"
+                endIcon={<ArrowForwardRounded />}
+              >
+                All
+              </Button>
+            }
+            sx={{ ...span(4), height: { xs: "auto", lg: 520 } }}
+            bodySx={{ overflowY: "auto" }}
+          >
+            <TopProducts onSelect={setOpenProduct} />
+          </Panel>
         </Box>
-      </Box>
-    </Box>
+      )}
+      <CustomerDrawer
+        userId={selectedUserId}
+        open={Boolean(selectedUserId)}
+        onClose={() => setSelectedUserId(null)}
+      />
+      <ProductDialog
+        product={openProduct}
+        open={Boolean(openProduct)}
+        onClose={() => setOpenProduct(null)}
+      />
+    </PageContainer>
   );
 };
 

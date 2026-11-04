@@ -1,6 +1,7 @@
 import { ResponsiveLine } from "@nivo/line";
 import { linearGradientDef } from "@nivo/core";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import StatusMessage from "../common/StatusMessage";
 import { useGetSalesQuery } from "../../state/api";
 import OverviewChartSkeleton from "../templates/Overviewchartskeleton ";
 import useChartColors from "../../hooks/useChartColors";
@@ -17,7 +18,7 @@ import {
 
 const OverviewChart = ({ isDashboard = false, view }) => {
   const { theme, isDark, colors } = useChartColors();
-  const { data, isLoading, isError } = useGetSalesQuery();
+  const { data, isLoading, isError, refetch } = useGetSalesQuery();
   const { series, totals, hasData, isSales } = useSalesSeries(data, view);
 
   const formatAxisValue = (v) =>
@@ -30,22 +31,18 @@ const OverviewChart = ({ isDashboard = false, view }) => {
   }
 
   if (isError || !hasData) {
-    return (
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          p: "1.25rem",
-        }}
-      >
-        <Typography sx={{ color: isError ? theme.palette.error?.main : colors.textMuted }}>
-          {isError
-            ? "Could not load sales data. Refresh to try again."
-            : "No sales recorded for this period."}
-        </Typography>
-      </Box>
+    return isError ? (
+      <StatusMessage
+        variant="error"
+        title="Could not load sales data"
+        message="The server did not respond as expected."
+        onRetry={refetch}
+      />
+    ) : (
+      <StatusMessage
+        title="No sales to show"
+        message="No sales recorded for this period."
+      />
     );
   }
 
@@ -65,20 +62,39 @@ const OverviewChart = ({ isDashboard = false, view }) => {
           data={series}
           colors={[colors.line]}
           theme={{
-            text: { fontFamily: theme.typography.fontFamily, fill: colors.textMuted },
+            text: {
+              fontFamily: theme.typography.fontFamily,
+              fill: colors.textMuted,
+            },
             axis: {
               domain: { line: { stroke: colors.axisLine, strokeWidth: 1 } },
               ticks: {
                 line: { stroke: colors.axisLine, strokeWidth: 1 },
                 text: { fill: colors.textMuted, fontSize: 12 },
               },
-              legend: { text: { fill: colors.textStrong, fontSize: 13, fontWeight: 600 } },
+              legend: {
+                text: {
+                  fill: colors.textStrong,
+                  fontSize: 13,
+                  fontWeight: 600,
+                },
+              },
             },
             // Dashed and low-contrast: readable as a reference, never a
             // competitor to the line itself.
-            grid: { line: { stroke: colors.grid, strokeWidth: 1, strokeDasharray: "4 4" } },
+            grid: {
+              line: {
+                stroke: colors.grid,
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              },
+            },
             crosshair: {
-              line: { stroke: colors.crosshair, strokeWidth: 1, strokeDasharray: "4 4" },
+              line: {
+                stroke: colors.crosshair,
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              },
             },
             legends: { text: { fill: colors.textMuted, fontSize: 12 } },
           }}
@@ -88,7 +104,13 @@ const OverviewChart = ({ isDashboard = false, view }) => {
               : { top: 24, right: 32, bottom: 60, left: 78 }
           }
           xScale={{ type: "point" }}
-          yScale={{ type: "linear", min: 0, max: "auto", stacked: false, reverse: false }}
+          yScale={{
+            type: "linear",
+            min: 0,
+            max: "auto",
+            stacked: false,
+            reverse: false,
+          }}
           // catmullRom overshoots between points, so a cumulative total can
           // appear to dip - implying revenue was lost in a month where it
           // merely grew slowly. monotoneX cannot overshoot.
@@ -123,7 +145,9 @@ const OverviewChart = ({ isDashboard = false, view }) => {
             tickSize: 5,
             tickPadding: 10,
             tickRotation: 0,
-            legend: isDashboard ? "" : `Cumulative ${isSales ? "revenue" : "units"}`,
+            legend: isDashboard
+              ? ""
+              : `Cumulative ${isSales ? "revenue" : "units"}`,
             legendOffset: -64,
             legendPosition: "middle",
           }}
@@ -140,7 +164,11 @@ const OverviewChart = ({ isDashboard = false, view }) => {
           // Whole-column hit area instead of a 10px dot.
           enableSlices="x"
           sliceTooltip={({ slice }) => (
-            <SalesSliceTooltip slice={slice} formatValue={formatFullValue} colors={colors} />
+            <SalesSliceTooltip
+              slice={slice}
+              formatValue={formatFullValue}
+              colors={colors}
+            />
           )}
           crosshairType="x"
           useMesh={false}

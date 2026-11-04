@@ -11,10 +11,11 @@ const ProductSkeletonCard = () => {
 
   return (
     <Card
+      elevation={0}
+      aria-hidden="true"
       sx={{
-        backgroundImage: "none",
         backgroundColor: theme.palette.background.alt,
-        borderRadius: "0.55rem",
+        borderRadius: "16px",
       }}
     >
       <CardContent className="skeleton-layout">

@@ -19,7 +19,7 @@ const useChartColors = () => {
       surface: isDark ? theme.palette.background.alt : "#ffffff",
       panelBorder: theme.palette.secondary[300],
     }),
-    [isDark, theme]
+    [isDark, theme],
   );
 
   return { theme, isDark, colors };

@@ -1,21 +1,25 @@
+import { lazy, useMemo } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { themeSettings } from "./theme";
 import { useSelector } from "react-redux";
-import { useMemo } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { themeSettings } from "./theme";
 import Layout from "./pages/Layout";
-import Dashboard from "./pages/Dashboard";
-import Products from "./pages/Products";
-import Customers from "./pages/Customers";
-import Transactions from "./pages/Transactions";
-import { Geography } from "./pages/Geography";
-import Overview from "./pages/Overview";
-import Daily from "./pages/Daily";
-import Monthly from "./pages/Monthly";
-import Breakdown from "./pages/Breakdown";
-import Performance from "./pages/Performance";
-import Admin from "./pages/Admin";
+
+// Each page is its own chunk, so the first load does not pay for the map,
+// the date picker and every chart library at once.
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Products = lazy(() => import("./pages/Products"));
+const Customers = lazy(() => import("./pages/Customers"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Geography = lazy(() => import("./pages/Geography"));
+const Overview = lazy(() => import("./pages/Overview"));
+const Daily = lazy(() => import("./pages/Daily"));
+const Monthly = lazy(() => import("./pages/Monthly"));
+const Breakdown = lazy(() => import("./pages/Breakdown"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Performance = lazy(() => import("./pages/Performance"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -27,10 +31,7 @@ export default function App() {
           <CssBaseline />
           <Routes>
             <Route element={<Layout />}>
-              <Route
-                path="/"
-                element={<Navigate to={"/dashboard"} replace />}
-              />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/customers" element={<Customers />} />
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/breakdown" element={<Breakdown />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/performance" element={<Performance />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
         </ThemeProvider>

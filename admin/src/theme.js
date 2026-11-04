@@ -78,8 +78,26 @@ const scrollbarTokens = (mode) =>
 // mui theme settings
 export const themeSettings = (mode) => {
   const scrollbar = scrollbarTokens(mode);
+  // Keyboard focus ring: the amber accent in dark mode, a dark amber in light
+  // mode so it stays visible on a white page.
+  const glassSurface = {
+    backgroundColor:
+      mode === "dark" ? "rgba(25, 31, 69, 0.78)" : "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "var(--blur-md, blur(18px)) saturate(160%)",
+    WebkitBackdropFilter: "var(--blur-md, blur(18px)) saturate(160%)",
+    border: `1px solid ${
+      mode === "dark" ? "rgba(255, 255, 255, 0.12)" : "rgba(15, 23, 42, 0.1)"
+    }`,
+    boxShadow:
+      mode === "dark"
+        ? "0 20px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08)"
+        : "0 20px 60px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
+  };
+  const focusRing =
+    mode === "dark" ? tokensDark.secondary[400] : tokensDark.secondary[800];
 
   return {
+    shape: { borderRadius: 10 },
     components: {
       MuiCssBaseline: {
         styleOverrides: {
@@ -87,8 +105,47 @@ export const themeSettings = (mode) => {
             "--sb-track": scrollbar.track,
             "--sb-thumb": scrollbar.thumb,
             "--sb-thumb-hover": scrollbar.thumbHover,
+            "--focus-ring": focusRing,
+          },
+          body: {
+            WebkitFontSmoothing: "antialiased",
+            MozOsxFontSmoothing: "grayscale",
           },
         },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: { textTransform: "none", fontWeight: 600 },
+        },
+      },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: { textTransform: "none", fontWeight: 600 },
+        },
+      },
+      MuiPaper: {
+        // MUI adds a white overlay gradient to elevated dark-mode surfaces,
+        // which tints every menu and popover a different shade from the
+        // panels around it.
+        styleOverrides: { root: { backgroundImage: "none" } },
+      },
+      // Floating surfaces (menus, selects, autocomplete lists, dialogs) use
+      // the glass kit's frosted look: translucent, blurred, hairline border.
+      MuiPopover: { styleOverrides: { paper: glassSurface } },
+      MuiAutocomplete: { styleOverrides: { paper: glassSurface } },
+      MuiDialog: { styleOverrides: { paper: glassSurface } },
+      MuiBackdrop: {
+        styleOverrides: {
+          root: {
+            "&:not(.MuiBackdrop-invisible)": {
+              backdropFilter: "blur(4px)",
+              WebkitBackdropFilter: "blur(4px)",
+            },
+          },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: { tooltip: { fontSize: "0.75rem" } },
       },
     },
     palette: {
@@ -121,9 +178,14 @@ export const themeSettings = (mode) => {
               main: tokensDark.grey[50],
               light: tokensDark.grey[100],
             },
+            // The reversed amber shades used for text (200/300) and the main
+            // accent measured 2.3:1-3.9:1 on white. These keep the same hue
+            // at 4.9:1 or better (WCAG AA for body text).
             secondary: {
               ...tokensLight.secondary,
-              main: tokensDark.secondary[600],
+              200: "#73591a",
+              300: "#806419",
+              main: "#806419",
               light: tokensDark.secondary[700],
             },
             neutral: {

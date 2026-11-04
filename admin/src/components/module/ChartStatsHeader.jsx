@@ -2,8 +2,17 @@ import { Box, Typography } from "@mui/material";
 
 const Stat = ({ label, value, textMuted, textStrong }) => (
   <Box>
-    <Typography sx={{ fontSize: "0.8rem", color: textMuted }}>{label}</Typography>
-    <Typography sx={{ fontSize: "1.6rem", fontWeight: 700, lineHeight: 1.15, color: textStrong }}>
+    <Typography sx={{ fontSize: "0.8rem", color: textMuted }}>
+      {label}
+    </Typography>
+    <Typography
+      sx={{
+        fontSize: "1.6rem",
+        fontWeight: 700,
+        lineHeight: 1.15,
+        color: textStrong,
+      }}
+    >
       {value}
     </Typography>
   </Box>
@@ -27,9 +36,7 @@ const ChartStatsHeader = ({
 }) => (
   <Box sx={{ display: "flex", gap: "32px", mb: "8px", flexShrink: 0 }}>
     <Stat
-      label={
-        primaryLabel ?? (isSales ? "Revenue to date" : "Units to date")
-      }
+      label={primaryLabel ?? (isSales ? "Revenue to date" : "Units to date")}
       value={formatFullValue(isSales ? totals.sales : totals.units)}
       textMuted={colors.textMuted}
       textStrong={colors.textStrong}
